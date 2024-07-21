@@ -1,0 +1,1 @@
+ SELECT * departments_id, departments_name FROM departments
