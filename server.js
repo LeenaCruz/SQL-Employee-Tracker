@@ -1,21 +1,33 @@
 const inquirer = require('inquirer');
-// const fs = require('fs');
-const {Pool} = require('pg');
+const fs = require('fs');
+const { Pool } = require('pg');
+const {UpdateEmployee, ViewRoles, AddRole, ViewDepartments, ViewEmployees, AddDepartment} = require('./query.js')
 const express = require('express');
+// require('dotenv')
+// const { DB_USER, DB_NAME, DB_PASSWORD } = process.env;
 
 const PORT = process.env.PORT || 3001;
 const app = express();
 
 //Express middleware
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 //Connect to database 
-const pool = new Pool (
+const pool = new Pool(
+    // process.env.DB_USER,
+    // process.env.DB_PASSWORD,
+    // process.env.DB_NAME,
     {
-       user: process.env.user 
-    }
+        user: 
+        password: 
+        database: 
+        host: 'localhost',
+    },
+    console.log('Conectado a la database')
 )
+
+function init (){
 inquirer
 .prompt( [
     { type: 'list',
@@ -27,31 +39,82 @@ inquirer
 ])
 .then((response) => {
     console.log("Enhorabuena")
+
 let query;
 if (response.task === 'Update Employee Role') {
     console.log (`${response.task} funciono`)
     //update employee role in db
     //que tendria que hacer? mostrar db? escoger empleado? actualizar datos en db?
 }
+//ESTE SI FUNCIONA
 else if (response.task === 'View All Roles'){
     console.log (`${response.task} funciono`)
+    const roles = new ViewRoles();
+    query = roles.query();
+    // console.log(query)
+    pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
+  
 }
 else if (response.task === 'Add Role') {
     console.log (`${response.task} funciono`)
+    inquirer.prompt([{type: 'input', message: 'Add role title', name: 'role'}, {type:'input', message:'Add salary', name: 'salary'},{type: 'input', message:'Add Department', name:'department'}]);
+    const role = new AddRole();
+    query = role.query();
+    pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
 }
 else if (response.task === 'View All Departments') {
     console.log (`${response.task} funciono`)
-  query = " SELECT * departments_id, departments_name FROM departments"
+    const depts = new ViewDepartments();
+    query = depts.query();
+    pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
+// pool.query(`SELECT departments_id, departments_name FROM departments`, function (err, {rows}) { console.log(rows);})
+
+//   query = " SELECT * departments_id, departments_name FROM departments"
     // fs.writeFileSync('./db/query.sql',query, err => err ? console.error('failed to write file') : console.log('success'))
 
 }
 else if (response.task === 'Add Department') {
-    console.log (`${response.task} funciono`)
+const dept = new AddDepartment();
+query = dept.query();
+pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
+     
 }
-else if (response.task === 'Quit') {
-    console.log (`${response.task} funciono`)
-} 
 else if (response.task === 'View All Employees') {
     console.log (`${response.task} funciono`)
+    const empl = new ViewEmployees();
+    query = empl.query();
+    pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
 }
+else if (response.task === 'Quit') {
+    console.log (`${response.task} funcionó...reiniciando`);
+   init();
+} 
 });
+};
+
+pool.connect();
+init();
+
+// pool.query(`INSERT INTO department (id, name) VALUES (1,'Leena'), (2, 'Bob'), (3, 'Charlie');`)
+// const sql = fs.readFileSync('./db/seeds.sql').toString();
+// pool.query(sql, (err, res) => {
+//     if (err) {
+//         console.erros(err);
+//     } else {
+//         console.log('Seeds inserted successfully');
+//     }
+//     pool.end();
+// });
+
+
+// pool.query(`SELECT * FROM departments`, function (err, { rows }) { console.log(rows); })
+
+// pool.connect();
+
+app.use((req, res) => {
+    res.status(404).end();
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+})
