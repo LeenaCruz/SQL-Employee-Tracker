@@ -3,8 +3,7 @@ const fs = require('fs');
 const { Pool } = require('pg');
 const {UpdateEmployee, ViewRoles, AddRole, ViewDepartments, ViewEmployees, AddDepartment} = require('./query.js')
 const express = require('express');
-// require('dotenv')
-// const { DB_USER, DB_NAME, DB_PASSWORD } = process.env;
+require('dotenv').config();
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -15,13 +14,11 @@ app.use(express.json());
 
 //Connect to database 
 const pool = new Pool(
-    // process.env.DB_USER,
-    // process.env.DB_PASSWORD,
-    // process.env.DB_NAME,
+ 
     {
-        user: 
-        password: 
-        database: 
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
         host: 'localhost',
     },
     console.log('Conectado a la database')
@@ -48,12 +45,11 @@ if (response.task === 'Update Employee Role') {
 }
 //ESTE SI FUNCIONA
 else if (response.task === 'View All Roles'){
-    console.log (`${response.task} funciono`)
     const roles = new ViewRoles();
     query = roles.query();
     // console.log(query)
     pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
-  
+  init();
 }
 else if (response.task === 'Add Role') {
     console.log (`${response.task} funciono`)
@@ -87,7 +83,8 @@ else if (response.task === 'View All Employees') {
 }
 else if (response.task === 'Quit') {
     console.log (`${response.task} funcionó...reiniciando`);
-   init();
+//    init();
+process.exit(0);
 } 
 });
 };
@@ -109,11 +106,16 @@ init();
 
 // pool.query(`SELECT * FROM departments`, function (err, { rows }) { console.log(rows); })
 
-// pool.connect();
+pool.connect();
 
 app.use((req, res) => {
     res.status(404).end();
 });
+
+// //connect to db
+// sequelize.sync().then(() => {
+//     app.listen(PORT, () => console.log('Now listening'));
+//   });
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
