@@ -1,7 +1,7 @@
 const inquirer = require('inquirer');
-const fs = require('fs');
+// const fs = require('fs');
 const { Pool } = require('pg');
-const { UpdateEmployee, ViewRoles, AddRole, ViewDepartments, ViewEmployees, AddDepartment } = require('./query.js')
+// const { UpdateEmployee, ViewRoles, AddRole, ViewDepartments, ViewEmployees, AddDepartment } = require('./query.js')
 const express = require('express');
 require('dotenv').config();
 
@@ -38,7 +38,6 @@ function init() {
         .then((response) => {
             console.log("Enhorabuena")
 
-            let query;
             if (response.task === 'Update Employee Role') {
                 console.log(`${response.task} funciono`)
                 //update employee role in db
@@ -113,30 +112,11 @@ function init() {
 pool.connect();
 init();
 
-// pool.query(`INSERT INTO department (id, name) VALUES (1,'Leena'), (2, 'Bob'), (3, 'Charlie');`)
-// const sql = fs.readFileSync('./db/seeds.sql').toString();
-// pool.query(sql, (err, res) => {
-//     if (err) {
-//         console.erros(err);
-//     } else {
-//         console.log('Seeds inserted successfully');
-//     }
-//     pool.end();
-// });
-
-
-// pool.query(`SELECT * FROM departments`, function (err, { rows }) { console.log(rows); })
-
 pool.connect();
 
 app.use((req, res) => {
     res.status(404).end();
 });
-
-// //connect to db
-// sequelize.sync().then(() => {
-//     app.listen(PORT, () => console.log('Now listening'));
-//   });
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
