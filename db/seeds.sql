@@ -11,4 +11,7 @@ VALUES ('Marketer', 2000,1),
     ('Janitor', 5000, 4);
 
 INSERT INTO employee (first_name, last_name) VALUES
-('Leena', 'Cruz');
+('Leena', 'Cruz'),
+('Jose','Smith'),
+('Aidan', 'Waite'),
+('Sally','Malik');

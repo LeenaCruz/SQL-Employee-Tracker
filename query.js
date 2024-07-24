@@ -1,14 +1,16 @@
+const { default: inquirer } = require("inquirer");
+
 class Query {
-    constructor(task){
+    constructor(task) {
         this.task = task;
     }
     query() {
-        throw new Error ('Error');
+        throw new Error('Error');
     }
 }
 
 class UpdateEmployee extends Query {
-    constructor (task){
+    constructor(task) {
         super(task);
     }
     query() {
@@ -17,8 +19,8 @@ class UpdateEmployee extends Query {
 }
 
 class ViewRoles extends Query {
-    constructor (task) {
-        super (task);
+    constructor(task) {
+        super(task);
     }
     query() {
         console.log('Query funciono')
@@ -36,7 +38,7 @@ class AddRole extends Query {
 }
 
 class ViewDepartments extends Query {
-    constructor(task){
+    constructor(task) {
         super(task);
     }
     query() {
@@ -45,22 +47,35 @@ class ViewDepartments extends Query {
 }
 
 class ViewEmployees extends Query {
-    constructor (task) {
-        super (task);
+    constructor(task) {
+        super(task);
     }
     query() {
-        return 'SELECT * FROM employee';
+        return 'SELECT employee.id, employee.first_name, employee.last_name, role.department, role.salary FROM employee JOIN role ON employee.id = role.id';
+
     }
 }
 
 
 class AddDepartment extends Query {
-    constructor (task) {
-        super (task);
+    constructor(task) {
+        super(task);
     }
     query() {
-        return `INSERT INTO department (name) VALUES ('Nuevo Depto');`
+        inquirer.prompt([
+            {
+                message: "What is the name of the department?",
+                name: "departmentName"
+            }
+        ])
+            .then(({ departmentName }) => {
+                pool.query(`INSERT INTO department (name) VALUES ($1)`, [departmentName])
+                .then(() => {
+                    console.log("Department was succesfully added.")
+                })
+            })
+
     }
 }
 
-module.exports = {UpdateEmployee, ViewRoles, AddRole, ViewDepartments, ViewEmployees, AddDepartment}
+module.exports = { UpdateEmployee, ViewRoles, AddRole, ViewDepartments, ViewEmployees, AddDepartment }

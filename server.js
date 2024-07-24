@@ -1,7 +1,7 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
 const { Pool } = require('pg');
-const {UpdateEmployee, ViewRoles, AddRole, ViewDepartments, ViewEmployees, AddDepartment} = require('./query.js')
+const { UpdateEmployee, ViewRoles, AddRole, ViewDepartments, ViewEmployees, AddDepartment } = require('./query.js')
 const express = require('express');
 require('dotenv').config();
 
@@ -14,7 +14,7 @@ app.use(express.json());
 
 //Connect to database 
 const pool = new Pool(
- 
+
     {
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
@@ -24,73 +24,90 @@ const pool = new Pool(
     console.log('Conectado a la database')
 )
 
-function init (){
-inquirer
-.prompt( [
-    { type: 'list',
-        message: 'What would you like to do?',
-        name: 'task',
-        choices: ['Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Quit', 'View All Employees'],
+function init() {
+    inquirer
+        .prompt([
+            {
+                type: 'list',
+                message: 'What would you like to do?',
+                name: 'task',
+                choices: ['Update Employee Role', 'View All Roles', 'Add Role', 'View All Departments', 'Add Department', 'Add Employee', 'View All Employees', 'Quit'],
 
-    },
-])
-.then((response) => {
-    console.log("Enhorabuena")
+            },
+        ])
+        .then((response) => {
+            console.log("Enhorabuena")
 
-let query;
-if (response.task === 'Update Employee Role') {
-    console.log (`${response.task} funciono`)
-    //update employee role in db
-    //que tendria que hacer? mostrar db? escoger empleado? actualizar datos en db?
-}
-//ESTE SI FUNCIONA
-else if (response.task === 'View All Roles'){
-    const roles = new ViewRoles();
-    query = roles.query();
-    // console.log(query)
-    pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
-  init();
-}
-else if (response.task === 'Add Role') {
-    console.log (`${response.task} funciono`)
-    // inquirer.prompt([{type: 'input', message: 'Add role title', name: 'role'}, {type:'input', message:'Add salary', name: 'salary'},{type: 'input', message:'Add Department', name:'department'}]);
-    const role = new AddRole();
-    query = role.query();
-    pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
-}
-else if (response.task === 'View All Departments') {
-    // const depts = new ViewDepartments();
-    // query = depts.query();
-    // pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
-    pool.query("SELECT * FROM department")
-    .then(({rows}) => {
-        console.table(rows);
-        init();
-    })
-}
-else if (response.task === 'Add Department') {
-const dept = new AddDepartment();
-query = dept.query();
-pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
-     
-}
-else if (response.task === 'View All Employees') {
-    // console.log (`${response.task} funciono`)
-    // const empl = new ViewEmployees();
-    // query = empl.query();
-    // pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
-    pool.query("SELECT * FROM employee")
-    .then(({rows}) => {
-        console.table(rows);
-        init();
-    })
-}
-else if (response.task === 'Quit') {
-    console.log (`${response.task} Goodbye!`);
-//    init();
-process.exit(0);
-} 
-});
+            let query;
+            if (response.task === 'Update Employee Role') {
+                console.log(`${response.task} funciono`)
+                //update employee role in db
+                //que tendria que hacer? mostrar db? escoger empleado? actualizar datos en db?
+            }
+            else if (response.task === 'View All Roles') {
+                pool.query("SELECT * FROM role")
+                    .then(({ rows }) => {
+                        console.table(rows);
+                        init();
+                    })
+            }
+            else if (response.task === 'Add Role') {
+                inquirer.prompt([{type: 'input', message: 'Add role title', name: 'role'}, {type:'input', message:'Add salary', name: 'salary'},{type: 'input', message:'Add Department Number', name:'department'}])
+                .then(({role, salary, department}) => {
+                    pool.query(`INSERT INTO role (title, salary, department) VALUES ($1, $2, $3)`, [role, salary, department])
+                    .then(()=> {
+                        console.log(`Role was successfully added!`);
+                        init();
+                    }) 
+                })
+            }
+            else if (response.task === 'View All Departments') {
+                pool.query("SELECT department.id, department.name FROM department")
+                    .then(({ rows }) => {
+                        console.table(rows);
+                        init();
+                    })
+            }
+            else if (response.task === 'Add Department') {
+                inquirer.prompt([
+                    {
+                        message: "What is the name of the department?",
+                        name: "departmentName"
+                    }
+                ])
+                    .then(({ departmentName }) => {
+                        pool.query(`INSERT INTO department (name) VALUES ($1)`, [departmentName])
+                        .then(()=> {
+                            console.log(`${departmentName} was successfully added!`);
+                            init();
+                        })
+                    })
+            }
+            else if (response.task === 'Add Employee')
+                inquirer.prompt([{type: 'input', message: 'What is the employee first name?', name: 'firstName'}, {type: 'input', message: 'What is the employee last name?', name: 'lastName'}, {type:'input', message:'What is they role?', name: 'role'},{type: 'input', message:'Who is their manager?', name:'manager'}])
+            .then(({firstName, lastName, role, manager}) => {
+                pool.query(`INSERT INTO employee (first_name, last_name,role_id, manager_id) VALUES ($1, $2, $3, $4)`, [firstName, lastName, role, manager])
+                .then(()=> {
+                    console.log(`New Employee successfully added!`);
+                    init();
+                }) 
+            })
+
+
+
+            else if (response.task === 'View All Employees') {
+                pool.query("SELECT employee.id, employee.first_name, employee.last_name, role.department, role.salary FROM employee JOIN role ON employee.id = role.id")
+                    .then(({ rows }) => {
+                        console.table(rows);
+                        init();
+                    })
+            }
+            else if (response.task === 'Quit') {
+                console.log(`Goodbye!`);
+                //    init();
+                process.exit(0);
+            }
+        });
 };
 
 pool.connect();

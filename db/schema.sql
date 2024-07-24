@@ -22,8 +22,8 @@ CREATE TABLE  employee (
 id SERIAL PRIMARY KEY, 
 first_name VARCHAR(30), 
 last_name VARCHAR(30),
-role_id INTEGER,
-manager_id INTEGER,
+role_id INTEGER NOT NULL,
+manager_id INTEGER NOT NULL,
 FOREIGN KEY (role_id)
 REFERENCES role(id)
 ON DELETE SET NULL,
