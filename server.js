@@ -53,21 +53,20 @@ else if (response.task === 'View All Roles'){
 }
 else if (response.task === 'Add Role') {
     console.log (`${response.task} funciono`)
-    inquirer.prompt([{type: 'input', message: 'Add role title', name: 'role'}, {type:'input', message:'Add salary', name: 'salary'},{type: 'input', message:'Add Department', name:'department'}]);
+    // inquirer.prompt([{type: 'input', message: 'Add role title', name: 'role'}, {type:'input', message:'Add salary', name: 'salary'},{type: 'input', message:'Add Department', name:'department'}]);
     const role = new AddRole();
     query = role.query();
     pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
 }
 else if (response.task === 'View All Departments') {
-    console.log (`${response.task} funciono`)
-    const depts = new ViewDepartments();
-    query = depts.query();
-    pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
-// pool.query(`SELECT departments_id, departments_name FROM departments`, function (err, {rows}) { console.log(rows);})
-
-//   query = " SELECT * departments_id, departments_name FROM departments"
-    // fs.writeFileSync('./db/query.sql',query, err => err ? console.error('failed to write file') : console.log('success'))
-
+    // const depts = new ViewDepartments();
+    // query = depts.query();
+    // pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
+    pool.query("SELECT * FROM department")
+    .then(({rows}) => {
+        console.table(rows);
+        init();
+    })
 }
 else if (response.task === 'Add Department') {
 const dept = new AddDepartment();
@@ -76,13 +75,18 @@ pool.query(query, (error, results) => { if (error) {console.error(error);} conso
      
 }
 else if (response.task === 'View All Employees') {
-    console.log (`${response.task} funciono`)
-    const empl = new ViewEmployees();
-    query = empl.query();
-    pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
+    // console.log (`${response.task} funciono`)
+    // const empl = new ViewEmployees();
+    // query = empl.query();
+    // pool.query(query, (error, results) => { if (error) {console.error(error);} console.log(results.rows)});
+    pool.query("SELECT * FROM employee")
+    .then(({rows}) => {
+        console.table(rows);
+        init();
+    })
 }
 else if (response.task === 'Quit') {
-    console.log (`${response.task} funcionó...reiniciando`);
+    console.log (`${response.task} Goodbye!`);
 //    init();
 process.exit(0);
 } 

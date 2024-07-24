@@ -1,8 +1,8 @@
-INSERT INTO department (id,name)
-VALUES (default,'Marketing'),
-        (default,'Sales'), 
-        (default,'Engineering'),
-        (default,'Maintenance');
+INSERT INTO department (name)
+VALUES ('Marketing'),
+        ('Sales'), 
+        ('Engineering'),
+        ('Maintenance');
 
 INSERT INTO role ( title,salary, department)
 VALUES ('Marketer', 2000,1),

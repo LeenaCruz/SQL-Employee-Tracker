@@ -40,7 +40,7 @@ class ViewDepartments extends Query {
         super(task);
     }
     query() {
-        return 'SELECT departments_id, departments_name FROM departments'
+        return 'SELECT * FROM department'
     }
 }
 
